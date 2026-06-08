@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SpendWise — Smart Expense Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060608;--s1:#0d0f14;--s2:#13161d;--s3:#1a1e28;--s4:#222736;
+  --b1:rgba(255,255,255,0.06);--b2:rgba(255,255,255,0.1);--b3:rgba(255,255,255,0.16);
+  --t1:#f4f3fa;--t2:#a8a6bc;--t3:#6b6882;
+  --g:#4ade80;--g2:#22c55e;--glow:rgba(74,222,128,0.12);
+  --p:#818cf8;--p2:#6366f1;--pglow:rgba(129,140,248,0.12);
+  --r:#f87171;--a:#fb923c;--y:#facc15;--c:#38bdf8;
+  --font:'Plus Jakarta Sans',sans-serif;--mono:'JetBrains Mono',monospace;
+  --rad:16px;--rad-sm:10px;--rad-xs:7px;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--t1);min-height:100vh;font-size:14px;line-height:1.6;overflow-x:hidden}
+
+/* SCREENS */
+.scr{display:none;min-height:100vh}
+.scr.on{display:flex}
+
+/* ═══════════════════════════════════════
+   AUTH
+═══════════════════════════════════════ */
+#s-auth{align-items:stretch;background:var(--bg)}
+.auth-l{
+  flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:60px 48px;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--s1) 0%,var(--s2) 100%);
+  border-right:1px solid var(--b1);
+}
+.auth-l::before{
+  content:'';position:absolute;width:600px;height:600px;
+  background:radial-gradient(circle,rgba(74,222,128,0.06) 0%,transparent 70%);
+  bottom:-200px;left:50%;transform:translateX(-50%);pointer-events:none;
+}
+.auth-l::after{
+  content:'';position:absolute;width:300px;height:300px;
+  background:radial-gradient(circle,rgba(129,140,248,0.05) 0%,transparent 70%);
+  top:80px;right:-80px;pointer-events:none;
+}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:48px}
+.brand-icon{
+  width:48px;height:48px;background:linear-gradient(135deg,var(--g),var(--p));
+  border-radius:14px;display:flex;align-items:center;justify-content:center;
+  font-size:22px;box-shadow:0 0 24px rgba(74,222,128,0.3);
+}
+.brand-name{font-size:22px;font-weight:800;letter-spacing:-0.5px}
+.brand-name span{color:var(--g)}
+.hero-title{font-size:36px;font-weight:800;letter-spacing:-1px;line-height:1.2;margin-bottom:16px;text-align:center;max-width:360px}
+.hero-title em{font-style:normal;color:var(--g)}
+.hero-sub{color:var(--t2);font-size:15px;text-align:center;max-width:320px;line-height:1.7;margin-bottom:48px}
+.feature-list{display:flex;flex-direction:column;gap:14px;width:100%;max-width:340px}
+.feat{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--s3);border:1px solid var(--b1);border-radius:var(--rad-sm)}
+.feat-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.feat-ico.gr{background:var(--glow)}
+.feat-ico.pu{background:var(--pglow)}
+.feat-ico.bl{background:rgba(56,189,248,0.1)}
+.feat-text{font-size:13px;color:var(--t2);line-height:1.4}
+.feat-text strong{color:var(--t1);display:block;font-size:14px;margin-bottom:2px}
+
+.auth-r{
+  width:520px;display:flex;flex-direction:column;justify-content:center;
+  padding:60px 56px;background:var(--bg);
+}
+.tab-row{display:flex;background:var(--s2);border:1px solid var(--b1);border-radius:var(--rad-sm);padding:4px;margin-bottom:36px}
+.tab{flex:1;padding:10px;text-align:center;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;color:var(--t3);border:none;background:none;font-family:var(--font);transition:all .2s}
+.tab.on{background:var(--s4);color:var(--t1);border:1px solid var(--b2)}
+
+.aform{display:none}
+.aform.on{display:block}
+.ftitle{font-size:28px;font-weight:800;letter-spacing:-0.8px;margin-bottom:6px}
+.fsub{color:var(--t2);font-size:14px;margin-bottom:32px}
+
+.fld{margin-bottom:18px}
+.fld label{display:block;font-size:12px;color:var(--t2);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.fld input{
+  width:100%;background:var(--s2);border:1px solid var(--b1);
+  border-radius:var(--rad-xs);padding:13px 16px;font-size:14px;
+  color:var(--t1);font-family:var(--font);outline:none;
+  transition:border-color .2s,background .2s;
+}
+.fld input:focus{border-color:var(--g);background:rgba(74,222,128,0.03)}
+.fld input::placeholder{color:var(--t3)}
+.fld-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+.sbtn{
+  width:100%;padding:14px;background:linear-gradient(135deg,var(--g),var(--g2));
+  color:#060608;border:none;border-radius:var(--rad-xs);font-size:15px;
+  font-weight:700;cursor:pointer;font-family:var(--font);letter-spacing:0.2px;
+  transition:all .2s;margin-top:10px;box-shadow:0 4px 20px rgba(74,222,128,0.25);
+}
+.sbtn:hover{transform:translateY(-1px);box-shadow:0 6px 28px rgba(74,222,128,0.35)}
+.sbtn:active{transform:translateY(0)}
+.sbtn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--t3);font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--b1)}
+
+/* OTP */
+.otp-wrap{display:none;flex-direction:column;align-items:center;padding:10px 0}
+.otp-wrap.on{display:flex}
+.otp-badge{
+  width:72px;height:72px;background:linear-gradient(135deg,rgba(74,222,128,0.15),rgba(129,140,248,0.15));
+  border:1px solid var(--b2);border-radius:20px;display:flex;align-items:center;
+  justify-content:center;font-size:32px;margin-bottom:20px;
+}
+.otp-h{font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:8px;text-align:center}
+.otp-desc{color:var(--t2);font-size:13px;text-align:center;max-width:300px;line-height:1.6;margin-bottom:6px}
+.otp-email{color:var(--g);font-weight:600;font-size:13px;margin-bottom:20px}
+.otp-demo{
+  background:var(--s3);border:1px solid rgba(74,222,128,0.2);border-radius:var(--rad-sm);
+  padding:12px 24px;margin-bottom:24px;text-align:center;
+}
+.otp-demo-label{font-size:11px;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.otp-demo-code{font-family:var(--mono);font-size:28px;font-weight:600;color:var(--g);letter-spacing:8px}
+.otp-inputs{display:flex;gap:10px;margin-bottom:20px}
+.od{
+  width:54px;height:62px;background:var(--s2);border:1px solid var(--b2);
+  border-radius:var(--rad-xs);text-align:center;font-family:var(--mono);
+  font-size:24px;font-weight:600;color:var(--t1);outline:none;transition:border-color .2s;
+}
+.od:focus{border-color:var(--g);background:rgba(74,222,128,0.04)}
+.otp-timer{font-size:12px;color:var(--t3);margin-bottom:18px}
+.otp-timer b{color:var(--g)}
+.vbtn{
+  width:100%;padding:13px;background:linear-gradient(135deg,var(--g),var(--g2));
+  color:#060608;border:none;border-radius:var(--rad-xs);font-size:15px;
+  font-weight:700;cursor:pointer;font-family:var(--font);
+  box-shadow:0 4px 20px rgba(74,222,128,0.25);transition:all .2s;
+}
+.vbtn:hover{transform:translateY(-1px)}
+.back-link{background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;margin-top:14px;font-family:var(--font);transition:color .2s}
+.back-link:hover{color:var(--t1)}
+
+/* ═══════════════════════════════════════
+   APP
+═══════════════════════════════════════ */
+#s-app{flex-direction:row}
+.sb{
+  width:260px;background:var(--s1);border-right:1px solid var(--b1);
+  padding:20px 14px;display:flex;flex-direction:column;
+  position:fixed;height:100vh;top:0;left:0;z-index:20;overflow-y:auto;
+}
+.sb-brand{display:flex;align-items:center;gap:10px;padding:8px 10px 24px}
+.sb-brand-ico{width:36px;height:36px;background:linear-gradient(135deg,var(--g),var(--p));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.sb-brand-name{font-size:17px;font-weight:800;letter-spacing:-0.3px}.sb-brand-name span{color:var(--g)}
+.sb-sec{font-size:10px;color:var(--t3);font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:10px 10px 6px}
+.nb{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rad-xs);
+  cursor:pointer;color:var(--t3);font-size:13px;font-weight:500;
+  transition:all .15s;border:none;background:none;width:100%;text-align:left;
+  font-family:var(--font);margin-bottom:2px;
+}
+.nb:hover{background:var(--s3);color:var(--t1)}
+.nb.on{background:rgba(74,222,128,0.08);color:var(--g);border:1px solid rgba(74,222,128,0.12)}
+.nb .ni{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;background:var(--s3);flex-shrink:0}
+.nb.on .ni{background:rgba(74,222,128,0.1)}
+.sb-foot{margin-top:auto;padding:16px 10px 0;border-top:1px solid var(--b1)}
+.uc{display:flex;align-items:center;gap:10px}
+.uav{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--g),var(--p));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#060608;flex-shrink:0}
+.un{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ue{font-size:11px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbtn{background:none;border:none;color:var(--t3);cursor:pointer;font-size:17px;padding:5px;border-radius:6px;transition:color .15s;margin-left:auto}
+.lbtn:hover{color:var(--r)}
+
+.mc{margin-left:260px;flex:1;min-height:100vh;padding:28px 32px;max-width:calc(100vw - 260px)}
+.pg{display:none}.pg.on{display:block}
+
+/* PAGE HEADER */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px}
+.ph-l{}
+.ph-title{font-size:24px;font-weight:800;letter-spacing:-0.5px}
+.ph-sub{color:var(--t2);font-size:13px;margin-top:3px}
+.ph-r{display:flex;align-items:center;gap:10px}
+
+/* STATS */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.sc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rad);padding:20px 22px;position:relative;overflow:hidden;transition:border-color .2s}
+.sc:hover{border-color:var(--b2)}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.sc.cg::before{background:linear-gradient(90deg,var(--g),var(--g2))}
+.sc.cp::before{background:linear-gradient(90deg,var(--p),var(--p2))}
+.sc.ca::before{background:linear-gradient(90deg,var(--a),var(--y))}
+.sc.cr::before{background:linear-gradient(90deg,var(--c),var(--p))}
+.sc-lbl{font-size:11px;color:var(--t3);font-weight:600;letter-spacing:0.6px;text-transform:uppercase;margin-bottom:10px}
+.sc-val{font-size:28px;font-weight:800;letter-spacing:-1px;font-family:var(--mono)}
+.sc-val.vg{color:var(--g)}.sc-val.vp{color:var(--p)}.sc-val.va{color:var(--a)}.sc-val.vc{color:var(--c)}
+.sc-ico{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:32px;opacity:0.1}
+.sc-trend{font-size:11px;color:var(--t3);margin-top:6px}
+.sc-trend span{color:var(--g);font-weight:600}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rad);overflow:hidden;margin-bottom:20px}
+.card-h{padding:16px 20px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:700}
+.card-sub{font-size:12px;color:var(--t3);margin-top:1px}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;font-weight:600;color:var(--t3);letter-spacing:0.5px;text-transform:uppercase;padding:12px 20px;border-bottom:1px solid var(--b1)}
+td{padding:13px 20px;font-size:13px;border-bottom:1px solid var(--b1);color:var(--t1);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr{transition:background .15s}
+tbody tr:hover td{background:rgba(255,255,255,0.02)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.bf{background:rgba(74,222,128,0.1);color:var(--g)}
+.bt{background:rgba(56,189,248,0.1);color:var(--c)}
+.bs{background:rgba(251,146,60,0.1);color:var(--a)}
+.bb{background:rgba(248,113,113,0.1);color:var(--r)}
+.bh{background:rgba(129,140,248,0.12);color:var(--p)}
+.be{background:rgba(250,204,21,0.1);color:var(--y)}
+.bo{background:rgba(168,166,188,0.1);color:var(--t2)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:var(--rad-xs);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;font-family:var(--font)}
+.btn-g{background:linear-gradient(135deg,var(--g),var(--g2));color:#060608;box-shadow:0 2px 12px rgba(74,222,128,0.2)}
+.btn-g:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(74,222,128,0.3)}
+.btn-gh{background:transparent;color:var(--t2);border:1px solid var(--b1)}
+.btn-gh:hover{background:var(--s3);color:var(--t1);border-color:var(--b2)}
+.btn-rd{background:transparent;color:var(--r);border:1px solid rgba(248,113,113,0.2)}
+.btn-rd:hover{background:rgba(248,113,113,0.06)}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* FORM ELEMENTS */
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:11px;color:var(--t2);margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+.fg input,.fg select,.fg textarea{
+  width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:var(--rad-xs);
+  padding:11px 14px;font-size:13px;color:var(--t1);font-family:var(--font);outline:none;
+  transition:border-color .2s,background .2s;
+}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--g);background:rgba(74,222,128,0.02)}
+.fg select option{background:var(--s2)}
+.fg textarea{resize:vertical;min-height:80px}
+.fg-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* MODAL */
+.mover{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(8px)}
+.mover.on{display:flex}
+.mdl{background:var(--s2);border:1px solid var(--b2);border-radius:var(--rad);padding:28px 30px;width:500px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.mdl-title{font-size:18px;font-weight:800;letter-spacing:-0.4px;margin-bottom:22px}
+.mdl-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;padding-top:18px;border-top:1px solid var(--b1)}
+
+/* SEARCH / FILTER */
+.frow{display:flex;gap:10px;margin-bottom:18px;align-items:center}
+.sw{flex:1;position:relative}
+.sw input{width:100%;background:var(--s1);border:1px solid var(--b1);border-radius:var(--rad-xs);padding:10px 14px 10px 38px;font-size:13px;color:var(--t1);font-family:var(--font);outline:none;transition:border-color .2s}
+.sw input:focus{border-color:var(--g)}
+.sw-ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:14px}
+.fsel{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rad-xs);padding:10px 14px;font-size:13px;color:var(--t1);font-family:var(--font);outline:none;cursor:pointer;transition:border-color .2s}
+.fsel:focus{border-color:var(--g)}
+
+/* ANALYTICS */
+.cbr{display:flex;align-items:center;padding:13px 20px;border-bottom:1px solid var(--b1);gap:14px}
+.cbr:last-child{border-bottom:none}
+.cbr-name{width:80px;font-size:13px;font-weight:500}
+.cbr-bar{flex:1;height:6px;background:var(--s3);border-radius:4px;overflow:hidden}
+.cbr-fill{height:100%;border-radius:4px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.cbr-amt{width:100px;text-align:right;font-family:var(--mono);font-size:13px;font-weight:500}
+.cbr-pct{width:40px;text-align:right;font-size:11px;color:var(--t3)}
+
+/* MONTHLY BARS */
+.month-chart{padding:20px;display:flex;align-items:flex-end;gap:8px;height:180px}
+.mb-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.mb{width:100%;background:linear-gradient(180deg,var(--g),var(--g2));border-radius:4px 4px 0 0;min-height:4px;transition:height .5s ease;opacity:0.8}
+.mb:hover{opacity:1}
+.mb-lbl{font-size:10px;color:var(--t3);font-weight:600}
+.mb-val{font-size:9px;color:var(--t2);font-family:var(--mono)}
+
+/* PROFILE */
+.prof-hero{background:linear-gradient(135deg,var(--s2) 0%,var(--s3) 100%);border:1px solid var(--b1);border-radius:var(--rad);padding:28px;margin-bottom:20px;display:flex;align-items:center;gap:24px;position:relative;overflow:hidden}
+.prof-hero::after{content:'💸';position:absolute;right:30px;top:50%;transform:translateY(-50%);font-size:80px;opacity:0.06}
+.prof-av{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--g),var(--p));display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#060608;flex-shrink:0;box-shadow:0 0 30px rgba(74,222,128,0.25)}
+.prof-name{font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px}
+.prof-email{color:var(--t2);font-size:13px}
+.prof-since{color:var(--t3);font-size:12px;margin-top:5px}
+.prof-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);color:var(--g);font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-top:8px}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--b1);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-lbl{color:var(--t2)}
+.info-val{font-weight:500}
+
+/* CONN BADGE */
+.conn{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t3);padding:6px 12px;border:1px solid var(--b1);border-radius:20px}
+.cdot{width:7px;height:7px;border-radius:50%;background:var(--t3);transition:all .3s}
+.cdot.on{background:var(--g);box-shadow:0 0 8px var(--g)}
+.cdot.off{background:var(--r)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--s3);border:1px solid var(--b2);border-radius:var(--rad-sm);padding:14px 20px;font-size:13px;z-index:999;display:none;align-items:center;gap:10px;min-width:280px;max-width:400px;box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+.toast.on{display:flex;animation:tIn .25s ease}
+.toast.ok{border-color:rgba(74,222,128,0.3)}.toast.ok .ti{color:var(--g)}
+.toast.err{border-color:rgba(248,113,113,0.3)}.toast.err .ti{color:var(--r)}
+.toast.info{border-color:rgba(129,140,248,0.3)}.toast.info .ti{color:var(--p)}
+.ti{font-size:16px;flex-shrink:0}
+.tm{flex:1;font-size:13px}
+@keyframes tIn{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* EMPTY */
+.emp{padding:60px 20px;text-align:center}
+.emp-ico{font-size:48px;margin-bottom:14px;opacity:0.6}
+.emp-t{font-size:15px;font-weight:600;margin-bottom:6px}
+.emp-s{font-size:13px;color:var(--t3)}
+
+/* SPINNER */
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--b1);border-top-color:var(--g);border-radius:50%;animation:sp .6s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.ld-cell{text-align:center;padding:40px!important;color:var(--t3)}
+
+/* AMOUNT */
+.amt{font-family:var(--mono);font-size:13px;font-weight:500}
+
+/* QUICK ACTIONS */
+.qa-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.qa{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rad);padding:18px;cursor:pointer;transition:all .2s;text-align:center}
+.qa:hover{border-color:var(--b2);background:var(--s2);transform:translateY(-2px)}
+.qa-ico{font-size:24px;margin-bottom:8px}
+.qa-lbl{font-size:12px;font-weight:600;color:var(--t2)}
+
+/* NOTIFICATION DOT */
+.notif{width:8px;height:8px;background:var(--r);border-radius:50%;display:inline-block;margin-left:4px}
+
+/* GRID LAYOUTS */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--b2);border-radius:4px}
+
+@media(max-width:900px){
+  .auth-l{display:none}
+  .auth-r{width:100%;padding:40px 24px}
+  .sg{grid-template-columns:1fr 1fr}
+  .g2,.g3{grid-template-columns:1fr}
+  .sb{transform:translateX(-100%)}
+  .mc{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<!-- ╔══════════════════════════════╗
+     ║        AUTH SCREEN           ║
+     ╚══════════════════════════════╝ -->
+<div class="scr on" id="s-auth">
+  <div class="auth-l">
+    <div class="brand">
+      <div class="brand-icon">💸</div>
+      <div class="brand-name">Spend<span>Wise</span></div>
+    </div>
+    <h1 class="hero-title">Track every rupee.<br><em>Stay in control.</em></h1>
+    <p class="hero-sub">The smartest way to manage your personal finances. Real-time insights, OTP security, and beautiful analytics.</p>
+    <div class="feature-list">
+      <div class="feat">
+        <div class="feat-ico gr">🔐</div>
+        <div class="feat-text"><strong>OTP Verification</strong>Two-factor security on every login</div>
+      </div>
+      <div class="feat">
+        <div class="feat-ico pu">📊</div>
+        <div class="feat-text"><strong>Live Analytics</strong>Real-time charts and category insights</div>
+      </div>
+      <div class="feat">
+        <div class="feat-ico bl">⚡</div>
+        <div class="feat-text"><strong>Instant Sync</strong>All data saved live to MySQL database</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-r">
+    <div class="tab-row">
+      <button class="tab on" id="tab-login" onclick="swTab('login')">Sign In</button>
+      <button class="tab" id="tab-reg" onclick="swTab('reg')">Create Account</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="aform on" id="af-login">
+      <div class="ftitle">Welcome back 👋</div>
+      <div class="fsub">Sign in to your SpendWise account</div>
+      <div class="fld"><label>Email Address</label><input type="email" id="le" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="fld"><label>Password</label><input type="password" id="lp" placeholder="Enter your password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="sbtn" id="lbtn" onclick="doLogin()">Sign In →</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="aform" id="af-reg">
+      <div class="ftitle">Create account ✨</div>
+      <div class="fsub">Start tracking your finances for free</div>
+      <div class="fld-row">
+        <div class="fld"><label>First Name</label><input type="text" id="rfn" placeholder="Vamsi"></div>
+        <div class="fld"><label>Last Name</label><input type="text" id="rln" placeholder="Krishna"></div>
+      </div>
+      <div class="fld"><label>Email Address</label><input type="email" id="re" placeholder="you@example.com" autocomplete="email"></div>
+      <div class="fld-row">
+        <div class="fld"><label>Password</label><input type="password" id="rp" placeholder="Min 6 chars"></div>
+        <div class="fld"><label>Confirm Password</label><input type="password" id="rp2" placeholder="Repeat" onkeydown="if(event.key==='Enter')doReg()"></div>
+      </div>
+      <button class="sbtn" id="rbtn" onclick="doReg()">Create Account →</button>
+    </div>
+
+    <!-- OTP -->
+    <div class="otp-wrap" id="otp-wrap">
+      <div class="otp-badge">🔐</div>
+      <div class="otp-h">Verify your identity</div>
+      <div class="otp-desc">A 6-digit OTP has been generated for</div>
+      <div class="otp-email" id="otp-em">—</div>
+      <div class="otp-demo">
+        <div class="otp-demo-label">Your OTP Code (Demo)</div>
+        <div class="otp-demo-code" id="otp-show">------</div>
+      </div>
+      <div class="otp-inputs">
+        <input class="od" id="od0" maxlength="1" oninput="oi(0)" onkeydown="ok(0,event)">
+        <input class="od" id="od1" maxlength="1" oninput="oi(1)" onkeydown="ok(1,event)">
+        <input class="od" id="od2" maxlength="1" oninput="oi(2)" onkeydown="ok(2,event)">
+        <input class="od" id="od3" maxlength="1" oninput="oi(3)" onkeydown="ok(3,event)">
+        <input class="od" id="od4" maxlength="1" oninput="oi(4)" onkeydown="ok(4,event)">
+        <input class="od" id="od5" maxlength="1" oninput="oi(5)" onkeydown="ok(5,event)">
+      </div>
+      <div class="otp-timer">Expires in <b id="otimer">10:00</b></div>
+      <button class="vbtn" onclick="doVerify()">Verify & Enter App →</button>
+      <button class="back-link" onclick="goBack()">← Back to login</button>
+    </div>
+  </div>
+</div>
+
+<!-- ╔══════════════════════════════╗
+     ║         APP SCREEN           ║
+     ╚══════════════════════════════╝ -->
+<div class="scr" id="s-app">
+  <!-- SIDEBAR -->
+  <aside class="sb">
+    <div class="sb-brand">
+      <div class="sb-brand-ico">💸</div>
+      <div class="sb-brand-name">Spend<span>Wise</span></div>
+    </div>
+    <div class="sb-sec">Overview</div>
+    <button class="nb on" onclick="gp('dash',this)"><span class="ni">🏠</span> Dashboard</button>
+    <button class="nb" onclick="gp('exp',this)"><span class="ni">📋</span> All Expenses</button>
+    <div class="sb-sec">Manage</div>
+    <button class="nb" onclick="gp('add',this)"><span class="ni">➕</span> Add Expense</button>
+    <button class="nb" onclick="gp('ana',this)"><span class="ni">📈</span> Analytics</button>
+    <div class="sb-sec">Account</div>
+    <button class="nb" onclick="gp('prof',this)"><span class="ni">👤</span> Profile</button>
+    <div class="sb-foot">
+      <div class="uc">
+        <div class="uav" id="sb-av">VK</div>
+        <div style="flex:1;min-width:0">
+          <div class="un" id="sb-nm">Vamsi</div>
+          <div class="ue" id="sb-em">user@email.com</div>
+        </div>
+        <button class="lbtn" onclick="doLogout()" title="Logout">⏻</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="mc">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="pg on" id="pg-dash">
+      <div class="ph">
+        <div class="ph-l">
+          <div class="ph-title" id="dash-greet">Good morning 👋</div>
+          <div class="ph-sub">Here's your financial overview today</div>
+        </div>
+        <div class="ph-r">
+          <div class="conn" id="conn-badge"><div class="cdot" id="cdot"></div><span id="ctxt">Connecting...</span></div>
+          <button class="btn btn-g" onclick="openModal()">+ Add Expense</button>
+        </div>
+      </div>
+      <div class="sg">
+        <div class="sc cg"><div class="sc-lbl">Total Spent</div><div class="sc-val vg" id="d-tot">₹0</div><div class="sc-trend">All time</div><span class="sc-ico">💰</span></div>
+        <div class="sc cp"><div class="sc-lbl">This Month</div><div class="sc-val vp" id="d-mon">₹0</div><div class="sc-trend" id="d-mon-lbl">Current month</div><span class="sc-ico">📅</span></div>
+        <div class="sc ca"><div class="sc-lbl">Transactions</div><div class="sc-val va" id="d-cnt">0</div><div class="sc-trend">Total records</div><span class="sc-ico">📝</span></div>
+        <div class="sc cr"><div class="sc-lbl">Daily Average</div><div class="sc-val vc" id="d-avg">₹0</div><div class="sc-trend">Per day spent</div><span class="sc-ico">📊</span></div>
+      </div>
+      <div class="qa-grid">
+        <div class="qa" onclick="openModal()"><div class="qa-ico">➕</div><div class="qa-lbl">Add Expense</div></div>
+        <div class="qa" onclick="gp('ana',document.querySelectorAll('.nb')[3])"><div class="qa-ico">📈</div><div class="qa-lbl">View Analytics</div></div>
+        <div class="qa" onclick="gp('exp',document.querySelectorAll('.nb')[1])"><div class="qa-ico">📋</div><div class="qa-lbl">All Expenses</div></div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-h"><div><div class="card-title">Recent Transactions</div><div class="card-sub">Last 8 expenses</div></div><button class="btn btn-gh btn-sm" onclick="loadAll()">↺</button></div>
+          <table><thead><tr><th>Category</th><th>Description</th><th>Date</th><th>Amount</th></tr></thead>
+          <tbody id="rec-tb"><tr><td colspan="4" class="ld-cell"><div class="spin"></div></td></tr></tbody></table>
+        </div>
+        <div class="card">
+          <div class="card-h"><div class="card-title">Spending by Category</div></div>
+          <div id="dash-cats"><div class="emp"><div class="emp-ico">📊</div><div class="emp-t">No data yet</div><div class="emp-s">Add expenses to see breakdown</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ALL EXPENSES ── -->
+    <div class="pg" id="pg-exp">
+      <div class="ph">
+        <div class="ph-l"><div class="ph-title">All Expenses</div><div class="ph-sub" id="exp-sub">Loading...</div></div>
+        <button class="btn btn-g" onclick="openModal()">+ Add Expense</button>
+      </div>
+      <div class="frow">
+        <div class="sw"><span class="sw-ico">🔍</span><input type="text" id="s-q" placeholder="Search by description, category..." oninput="fExp()"></div>
+        <select class="fsel" id="s-cat" onchange="fExp()">
+          <option value="">All Categories</option>
+          <option>Food</option><option>Travel</option><option>Shopping</option>
+          <option>Bills</option><option>Health</option><option>Education</option><option>Entertainment</option><option>Other</option>
+        </select>
+        <select class="fsel" id="s-sort" onchange="fExp()">
+          <option value="new">Newest First</option>
+          <option value="old">Oldest First</option>
+          <option value="hi">Highest Amount</option>
+          <option value="lo">Lowest Amount</option>
+        </select>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr><th>#</th><th>Category</th><th>Description</th><th>Date</th><th>Amount</th><th>Actions</th></tr></thead>
+          <tbody id="all-tb"><tr><td colspan="6" class="ld-cell"><div class="spin"></div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── ADD EXPENSE ── -->
+    <div class="pg" id="pg-add">
+      <div class="ph"><div class="ph-l"><div class="ph-title">Add Expense</div><div class="ph-sub">Record a new transaction to your account</div></div></div>
+      <div style="max-width:560px">
+        <div class="card" style="padding:28px 28px;overflow:visible">
+          <div class="fg-row">
+            <div class="fg">
+              <label>Category *</label>
+              <select id="a-cat">
+                <option value="">Select category</option>
+                <option>Food</option><option>Travel</option><option>Shopping</option>
+                <option>Bills</option><option>Health</option><option>Education</option><option>Entertainment</option><option>Other</option>
+              </select>
+            </div>
+            <div class="fg"><label>Amount (₹) *</label><input type="number" id="a-amt" placeholder="0.00" step="0.01" min="0.01"></div>
+          </div>
+          <div class="fg"><label>Description</label><input type="text" id="a-desc" placeholder="What did you spend on? (e.g. Lunch at café)"></div>
+          <div class="fg"><label>Date</label><input type="date" id="a-date"></div>
+          <div class="fg"><label>Notes (optional)</label><textarea id="a-notes" placeholder="Any additional notes..."></textarea></div>
+          <div style="display:flex;gap:12px;margin-top:8px">
+            <button class="btn btn-g" style="padding:12px 28px" onclick="doAdd()">Save Expense</button>
+            <button class="btn btn-gh" onclick="clrAdd()">Clear Form</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ANALYTICS ── -->
+    <div class="pg" id="pg-ana">
+      <div class="ph"><div class="ph-l"><div class="ph-title">Analytics</div><div class="ph-sub">Deep insights into your spending patterns</div></div></div>
+      <div class="g3" style="margin-bottom:20px">
+        <div class="sc cg"><div class="sc-lbl">Total Spent</div><div class="sc-val vg" id="an-tot">₹0</div><span class="sc-ico">💰</span></div>
+        <div class="sc cp"><div class="sc-lbl">Top Category</div><div class="sc-val vp" id="an-top" style="font-size:18px">—</div><span class="sc-ico">🏆</span></div>
+        <div class="sc ca"><div class="sc-lbl">Total Records</div><div class="sc-val va" id="an-cnt">0</div><span class="sc-ico">📝</span></div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="card-h"><div><div class="card-title">Category Breakdown</div><div class="card-sub">Where your money goes</div></div></div>
+          <div id="an-cats"><div class="emp"><div class="emp-ico">📊</div><div class="emp-t">No data</div></div></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><div><div class="card-title">Monthly Trend</div><div class="card-sub">Spending over time</div></div></div>
+          <div class="month-chart" id="an-chart"><div class="emp" style="padding:20px"><div class="emp-s">No monthly data yet</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROFILE ── -->
+    <div class="pg" id="pg-prof">
+      <div class="ph"><div class="ph-l"><div class="ph-title">Profile</div><div class="ph-sub">Your account information and stats</div></div></div>
+      <div class="prof-hero">
+        <div class="prof-av" id="p-av">VK</div>
+        <div>
+          <div class="prof-name" id="p-nm">Loading...</div>
+          <div class="prof-email" id="p-em">—</div>
+          <div class="prof-since" id="p-since">—</div>
+          <div class="prof-badge">✓ Verified Account</div>
+        </div>
+      </div>
+      <div class="g3" style="margin-bottom:20px">
+        <div class="sc cg"><div class="sc-lbl">Total Spent</div><div class="sc-val vg" id="p-tot">₹0</div></div>
+        <div class="sc cp"><div class="sc-lbl">Transactions</div><div class="sc-val vp" id="p-cnt">0</div></div>
+        <div class="sc ca"><div class="sc-lbl">Status</div><div class="sc-val va" style="font-size:16px">Active ✓</div></div>
+      </div>
+      <div class="card" style="max-width:500px">
+        <div class="card-h"><div class="card-title">Account Details</div></div>
+        <div class="info-row"><span class="info-lbl">Full Name</span><span class="info-val" id="pi-nm">—</span></div>
+        <div class="info-row"><span class="info-lbl">Email Address</span><span class="info-val" style="color:var(--g)" id="pi-em">—</span></div>
+        <div class="info-row"><span class="info-lbl">Member Since</span><span class="info-val" id="pi-since">—</span></div>
+        <div class="info-row"><span class="info-lbl">Account Type</span><span class="info-val"><span class="badge bf">Free Plan</span></span></div>
+        <div class="info-row"><span class="info-lbl">Security</span><span class="info-val"><span class="badge bh">OTP Enabled</span></span></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- EXPENSE MODAL -->
+<div class="mover" id="emod">
+  <div class="mdl">
+    <div class="mdl-title" id="m-ttl">Add New Expense</div>
+    <div class="fg-row">
+      <div class="fg">
+        <label>Category *</label>
+        <select id="m-cat">
+          <option value="">Select category</option>
+          <option>Food</option><option>Travel</option><option>Shopping</option>
+          <option>Bills</option><option>Health</option><option>Education</option><option>Entertainment</option><option>Other</option>
+        </select>
+      </div>
+      <div class="fg"><label>Amount (₹) *</label><input type="number" id="m-amt" placeholder="0.00" step="0.01" min="0.01"></div>
+    </div>
+    <div class="fg"><label>Description *</label><input type="text" id="m-desc" placeholder="e.g. Lunch, Metro ticket, Groceries..."></div>
+    <div class="fg"><label>Date</label><input type="date" id="m-date"></div>
+    <div class="fg"><label>Notes (optional)</label><textarea id="m-notes" placeholder="Any additional details..."></textarea></div>
+    <div class="mdl-foot">
+      <button class="btn btn-gh" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-g" id="m-sub" onclick="submitModal()">Save Expense</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><span class="ti" id="t-ico"></span><span class="tm" id="t-msg"></span></div>
+
+<script>
+const API='http://127.0.0.1:8000/api';
+let CU=null,AE=[],EID=null,OEM='',OTP_TIMER=null;
+
+// ── UTILS ──
+const $=id=>document.getElementById(id);
+const fmt=n=>'₹'+parseFloat(n||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const ini=n=>n?n.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2):'U';
+const today=()=>new Date().toISOString().split('T')[0];
+const CAT_COLORS={Food:'var(--g)',Travel:'var(--c)',Shopping:'var(--a)',Bills:'var(--r)',Health:'var(--p)',Education:'var(--y)',Entertainment:'var(--p)',Other:'var(--t2)'};
+const CAT_BADGE={Food:'bf',Travel:'bt',Shopping:'bs',Bills:'bb',Health:'bh',Education:'be',Entertainment:'bh',Other:'bo'};
+function badge(c){return`<span class="badge ${CAT_BADGE[c]||'bo'}">${c||'Other'}</span>`}
+function toast(msg,type='ok'){
+  $('t-ico').textContent=type==='ok'?'✓':type==='err'?'✗':'ℹ';
+  $('t-msg').textContent=msg;
+  const t=$('toast');t.className='toast on '+type;
+  clearTimeout(t._t);t._t=setTimeout(()=>t.className='toast',4000);
+}
+function greet(){const h=new Date().getHours();return h<12?'Good morning':'Good evening'}
+
+// ── AUTH TAB ──
+function swTab(tab){
+  $('tab-login').classList.toggle('on',tab==='login');
+  $('tab-reg').classList.toggle('on',tab==='reg');
+  $('af-login').classList.toggle('on',tab==='login');
+  $('af-reg').classList.toggle('on',tab==='reg');
+  $('otp-wrap').classList.remove('on');
+}
+
+// ── REGISTER ──
+async function doReg(){
+  const fn=$('rfn').value.trim(),ln=$('rln').value.trim();
+  const email=$('re').value.trim().toLowerCase();
+  const pass=$('rp').value,pass2=$('rp2').value;
+  const name=(fn+' '+ln).trim();
+  if(!fn||!email||!pass){toast('Please fill all required fields','err');return}
+  if(pass.length<6){toast('Password must be at least 6 characters','err');return}
+  if(pass!==pass2){toast('Passwords do not match','err');return}
+  const btn=$('rbtn');btn.disabled=true;btn.textContent='Creating account...';
+  try{
+    const r=await fetch(`${API}/auth/register/`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name,email,password:pass})});
+    const d=await r.json();
+    if(r.ok){showOTP(email,d.otp);toast('Account created! Verify your OTP','info')}
+    else toast(d.error||'Registration failed','err');
+  }catch{toast('Cannot connect to server. Is Django running?','err')}
+  btn.disabled=false;btn.textContent='Create Account →';
+}
+
+// ── LOGIN ──
+async function doLogin(){
+  const email=$('le').value.trim().toLowerCase();
+  const pass=$('lp').value;
+  if(!email||!pass){toast('Please enter email and password','err');return}
+  const btn=$('lbtn');btn.disabled=true;btn.textContent='Signing in...';
+  try{
+    const r=await fetch(`${API}/auth/login/`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pass})});
+    const d=await r.json();
+    if(r.ok){showOTP(email,d.otp);toast('OTP generated! Check the code below','info')}
+    else toast(d.error||'Login failed','err');
+  }catch{toast('Cannot connect to server. Is Django running?','err')}
+  btn.disabled=false;btn.textContent='Sign In →';
+}
+
+// ── OTP ──
+function showOTP(email,otp){
+  OEM=email;
+  $('af-login').classList.remove('on');$('af-reg').classList.remove('on');
+  $('otp-wrap').classList.add('on');
+  $('otp-em').textContent=email;
+  $('otp-show').textContent=otp;
+  for(let i=0;i<6;i++){$('od'+i).value=''}
+  $('od0').focus();
+  startTimer(600);
+}
+function goBack(){$('otp-wrap').classList.remove('on');swTab('login');clearInterval(OTP_TIMER)}
+function oi(i){
+  const v=$('od'+i).value;
+  if(v&&i<5)$('od'+(i+1)).focus();
+  if(getOTP().length===6)doVerify();
+}
+function ok(i,e){
+  if(e.key==='Backspace'&&!$('od'+i).value&&i>0)$('od'+(i-1)).focus();
+}
+function getOTP(){return[0,1,2,3,4,5].map(i=>$('od'+i).value).join('')}
+function startTimer(s){
+  clearInterval(OTP_TIMER);
+  OTP_TIMER=setInterval(()=>{
+    s--;const m=Math.floor(s/60),sec=s%60;
+    $('otimer').textContent=`${m}:${sec.toString().padStart(2,'0')}`;
+    if(s<=0){clearInterval(OTP_TIMER);$('otimer').textContent='Expired'}
+  },1000);
+}
+async function doVerify(){
+  const otp=getOTP();
+  if(otp.length<6){toast('Enter all 6 digits','err');return}
+  try{
+    const r=await fetch(`${API}/auth/verify-otp/`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:OEM,otp})});
+    const d=await r.json();
+    if(r.ok){clearInterval(OTP_TIMER);CU=d.user;localStorage.setItem('sw_u',JSON.stringify(CU));toast('Welcome, '+CU.name+'! 🎉');enterApp()}
+    else toast(d.error||'Invalid OTP','err');
+  }catch{toast('Connection error','err')}
+}
+
+// ── APP ENTRY ──
+function enterApp(){
+  $('s-auth').classList.remove('on');$('s-app').classList.add('on');
+  const av=ini(CU.name);
+  $('sb-av').textContent=av;$('sb-nm').textContent=CU.name;$('sb-em').textContent=CU.email;
+  $('dash-greet').textContent=`${greet()}, ${CU.name.split(' ')[0]} 👋`;
+  $('a-date').value=today();$('m-date').value=today();
+  checkConn();loadAll();loadAna();
+}
+function doLogout(){
+  CU=null;localStorage.removeItem('sw_u');
+  $('s-app').classList.remove('on');$('s-auth').classList.add('on');
+  swTab('login');toast('Signed out successfully','info');
+}
+
+// ── NAV ──
+function gp(name,btn){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  $('pg-'+name).classList.add('on');btn.classList.add('on');
+  if(name==='prof')loadProf();
+  if(name==='exp')loadAll();
+  if(name==='ana')loadAna();
+}
+
+// ── CONNECTION ──
+async function checkConn(){
+  try{
+    await fetch(`${API}/expenses/?user_id=${CU.id}`);
+    $('cdot').className='cdot on';$('ctxt').textContent='Connected';
+  }catch{$('cdot').className='cdot off';$('ctxt').textContent='Offline'}
+}
+
+// ── LOAD EXPENSES ──
+async function loadAll(){
+  if(!CU)return;
+  try{
+    const r=await fetch(`${API}/expenses/?user_id=${CU.id}`);
+    AE=await r.json();
+    renderDash();renderAll(AE);
+    $('exp-sub').textContent=`${AE.length} total transactions`;
+  }catch{toast('Failed to load expenses','err')}
+}
+
+// ── DASHBOARD RENDER ──
+function renderDash(){
+  const total=AE.reduce((s,e)=>s+parseFloat(e.amount),0);
+  const now=new Date();
+  const mon=AE.filter(e=>{const d=new Date(e.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear()});
+  const monTotal=mon.reduce((s,e)=>s+parseFloat(e.amount),0);
+  const dates=AE.map(e=>new Date(e.date));
+  const minDate=dates.length?new Date(Math.min(...dates)):now;
+  const days=Math.max(1,Math.ceil((now-minDate)/86400000));
+  $('d-tot').textContent=fmt(total);
+  $('d-mon').textContent=fmt(monTotal);
+  $('d-mon-lbl').textContent=now.toLocaleString('en-IN',{month:'long',year:'numeric'});
+  $('d-cnt').textContent=AE.length;
+  $('d-avg').textContent=fmt(total/days);
+
+  // Recent
+  const tb=$('rec-tb');
+  const recent=[...AE].slice(0,8);
+  if(!recent.length){tb.innerHTML=`<tr><td colspan="4"><div class="emp"><div class="emp-ico">💸</div><div class="emp-t">No expenses yet</div><div class="emp-s">Add your first expense to get started</div></div></td></tr>`;return}
+  tb.innerHTML=recent.map(e=>`<tr>
+    <td>${badge(e.category)}</td>
+    <td style="color:var(--t2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.description||'—'}</td>
+    <td style="color:var(--t3);font-size:12px">${e.date}</td>
+    <td class="amt">${fmt(e.amount)}</td>
+  </tr>`).join('');
+
+  // Categories
+  const cats={};AE.forEach(e=>{cats[e.category]=(cats[e.category]||0)+parseFloat(e.amount)});
+  const sorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const max=sorted[0]?.[1]||1;
+  $('dash-cats').innerHTML=sorted.map(([c,v])=>`
+    <div class="cbr">
+      <div class="cbr-name">${badge(c)}</div>
+      <div class="cbr-bar"><div class="cbr-fill" style="width:${Math.round(v/max*100)}%;background:${CAT_COLORS[c]||'var(--t2)'}"></div></div>
+      <div class="cbr-amt">${fmt(v)}</div>
+    </div>`).join('')||`<div class="emp"><div class="emp-ico">📊</div><div class="emp-t">No data</div></div>`;
+}
+
+// ── ALL EXPENSES RENDER ──
+function renderAll(list){
+  const tb=$('all-tb');
+  if(!list.length){tb.innerHTML=`<tr><td colspan="6"><div class="emp"><div class="emp-ico">🔍</div><div class="emp-t">No expenses found</div><div class="emp-s">Try a different filter or add new expenses</div></div></td></tr>`;return}
+  tb.innerHTML=list.map(e=>`<tr>
+    <td style="color:var(--t3);font-family:var(--mono);font-size:11px">#${e.id}</td>
+    <td>${badge(e.category)}</td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${e.description||'—'}</td>
+    <td style="color:var(--t3);font-size:12px">${e.date}</td>
+    <td class="amt" style="color:var(--g)">${fmt(e.amount)}</td>
+    <td>
+      <button class="btn btn-gh btn-sm" onclick="openEdit(${e.id})">✏️ Edit</button>
+      <button class="btn btn-rd btn-sm" style="margin-left:4px" onclick="delExp(${e.id})">🗑</button>
+    </td>
+  </tr>`).join('');
+}
+
+function fExp(){
+  const q=$('s-q').value.toLowerCase();
+  const cat=$('s-cat').value;
+  const sort=$('s-sort').value;
+  let list=[...AE].filter(e=>{
+    const mq=!q||(e.description||'').toLowerCase().includes(q)||e.category.toLowerCase().includes(q);
+    const mc=!cat||e.category===cat;
+    return mq&&mc;
+  });
+  if(sort==='old')list.sort((a,b)=>new Date(a.date)-new Date(b.date));
+  else if(sort==='hi')list.sort((a,b)=>parseFloat(b.amount)-parseFloat(a.amount));
+  else if(sort==='lo')list.sort((a,b)=>parseFloat(a.amount)-parseFloat(b.amount));
+  renderAll(list);
+}
+
+// ── ANALYTICS ──
+async function loadAna(){
+  if(!CU)return;
+  try{
+    const r=await fetch(`${API}/analytics/?user_id=${CU.id}`);
+    const d=await r.json();
+    const total=parseFloat(d.total_spent||0);
+    const cats=d.by_category||[];
+    $('an-tot').textContent=fmt(total);
+    $('an-cnt').textContent=AE.length;
+    $('an-top').textContent=cats[0]?.category||'—';
+    const max=cats[0]?parseFloat(cats[0].total):1;
+    const COLORS=['var(--g)','var(--c)','var(--a)','var(--p)','var(--r)','var(--y)'];
+    $('an-cats').innerHTML=cats.map((c,i)=>`
+      <div class="cbr">
+        <div class="cbr-name">${badge(c.category)}</div>
+        <div class="cbr-bar"><div class="cbr-fill" style="width:${Math.round(parseFloat(c.total)/max*100)}%;background:${COLORS[i%COLORS.length]}"></div></div>
+        <div class="cbr-amt">${fmt(c.total)}</div>
+        <div class="cbr-pct">${total?Math.round(parseFloat(c.total)/total*100)+'%':'0%'}</div>
+      </div>`).join('')||`<div class="emp"><div class="emp-ico">📊</div><div class="emp-t">No data yet</div><div class="emp-s">Add expenses to see breakdown</div></div>`;
+
+    // Monthly chart
+    const monthly=d.monthly||[];
+    if(monthly.length){
+      const mmax=Math.max(...monthly.map(m=>parseFloat(m.total)));
+      $('an-chart').innerHTML=monthly.map(m=>{
+        const h=Math.round(parseFloat(m.total)/mmax*130);
+        const lbl=m.month?m.month.slice(5):'';
+        return `<div class="mb-wrap">
+          <div class="mb-val">${fmt(m.total).replace('₹','₹')}</div>
+          <div class="mb" style="height:${h}px" title="${m.month}: ${fmt(m.total)}"></div>
+          <div class="mb-lbl">${lbl}</div>
+        </div>`;
+      }).join('');
+    } else {
+      $('an-chart').innerHTML=`<div class="emp" style="padding:20px;width:100%"><div class="emp-s">No monthly data yet</div></div>`;
+    }
+  }catch{toast('Analytics error','err')}
+}
+
+// ── PROFILE ──
+async function loadProf(){
+  if(!CU)return;
+  try{
+    const r=await fetch(`${API}/profile/${CU.id}/`);
+    const d=await r.json();
+    const av=ini(d.name);
+    $('p-av').textContent=av;$('p-nm').textContent=d.name;$('p-em').textContent=d.email;
+    const dt=new Date(d.created_at);
+    $('p-since').textContent='Member since '+dt.toLocaleDateString('en-IN',{year:'numeric',month:'long'});
+    $('p-tot').textContent=fmt(d.total_spent);$('p-cnt').textContent=d.expense_count;
+    $('pi-nm').textContent=d.name;$('pi-em').textContent=d.email;
+    $('pi-since').textContent=dt.toLocaleDateString('en-IN',{year:'numeric',month:'long',day:'numeric'});
+  }catch{}
+}
+
+// ── MODAL ──
+function openModal(){
+  EID=null;
+  $('m-ttl').textContent='Add New Expense';
+  $('m-sub').textContent='Save Expense';
+  $('m-cat').value='';$('m-amt').value='';$('m-desc').value='';
+  $('m-date').value=today();$('m-notes').value='';
+  $('emod').classList.add('on');
+  setTimeout(()=>$('m-cat').focus(),100);
+}
+function openEdit(id){
+  const e=AE.find(x=>x.id===id);if(!e)return;
+  EID=id;
+  $('m-ttl').textContent='Edit Expense';$('m-sub').textContent='Update Expense';
+  $('m-cat').value=e.category;$('m-amt').value=e.amount;
+  $('m-desc').value=e.description||'';$('m-date').value=e.date;
+  $('m-notes').value=e.notes||'';
+  $('emod').classList.add('on');
+}
+function closeModal(){$('emod').classList.remove('on')}
+$('emod').addEventListener('click',function(e){if(e.target===this)closeModal()});
+
+async function submitModal(){
+  const cat=$('m-cat').value,amt=parseFloat($('m-amt').value);
+  const desc=$('m-desc').value.trim(),date=$('m-date').value;
+  if(!cat){toast('Please select a category','err');return}
+  if(!amt||amt<=0){toast('Please enter a valid amount','err');return}
+  if(!desc){toast('Please enter a description','err');return}
+  const payload={user:CU.id,category:cat,amount:amt,description:desc,date:date||today()};
+  try{
+    const method=EID?'PUT':'POST';
+    const url=EID?`${API}/expenses/${EID}/`:`${API}/expenses/`;
+    const r=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(r.ok){toast(EID?'Expense updated! ✓':'Expense added! ✓');closeModal();loadAll();loadAna()}
+    else{const d=await r.json();toast(JSON.stringify(d),'err')}
+  }catch{toast('Connection error','err')}
+}
+
+async function delExp(id){
+  if(!confirm('Delete this expense? This cannot be undone.'))return;
+  try{
+    const r=await fetch(`${API}/expenses/${id}/`,{method:'DELETE'});
+    if(r.status===204){toast('Expense deleted');loadAll();loadAna()}
+    else toast('Delete failed','err');
+  }catch{toast('Connection error','err')}
+}
+
+// ── INLINE ADD ──
+async function doAdd(){
+  const cat=$('a-cat').value,amt=parseFloat($('a-amt').value);
+  const desc=$('a-desc').value.trim(),date=$('a-date').value;
+  if(!cat){toast('Please select a category','err');return}
+  if(!amt||amt<=0){toast('Please enter a valid amount','err');return}
+  if(!desc){toast('Please enter a description','err');return}
+  try{
+    const r=await fetch(`${API}/expenses/`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user:CU.id,category:cat,amount:amt,description:desc,date:date||today()})});
+    if(r.ok){toast('Expense saved successfully! 🎉');clrAdd();loadAll();loadAna()}
+    else{const d=await r.json();toast(JSON.stringify(d),'err')}
+  }catch{toast('Connection error','err')}
+}
+function clrAdd(){['a-cat','a-amt','a-desc','a-notes'].forEach(id=>$(id).value='');$('a-date').value=today()}
+
+// ── AUTO LOGIN ──
+(function(){
+  const s=localStorage.getItem('sw_u');
+  if(s){try{CU=JSON.parse(s);enterApp()}catch{localStorage.removeItem('sw_u')}}
+})();
+
+// Refresh conn every 15s
+setInterval(()=>{if(CU)checkConn()},15000);
+</script>
+</body>
+</html>

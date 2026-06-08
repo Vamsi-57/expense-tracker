@@ -38,3 +38,54 @@
 ---
 
 ## 📁 Project Structure
+
+
+---
+
+## 📸 Screenshots
+
+### Login & OTP Verification
+- Beautiful dark themed login page
+- Real OTP sent to Gmail inbox
+- 6-digit OTP input with auto-focus
+
+### Dashboard
+- Total spent, monthly spending, transaction count
+- Recent transactions table
+- Category breakdown chart
+
+### Analytics
+- Category-wise spending bars with percentages
+- Monthly trend bar chart
+
+---
+
+## 🔗 API Endpoints
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/auth/register/` | Register new user |
+| POST | `/api/auth/login/` | Login user |
+| POST | `/api/auth/verify-otp/` | Verify OTP |
+| GET | `/api/expenses/` | Get all expenses |
+| POST | `/api/expenses/` | Add expense |
+| PUT | `/api/expenses/<id>/` | Update expense |
+| DELETE | `/api/expenses/<id>/` | Delete expense |
+| GET | `/api/analytics/` | Get analytics |
+| GET | `/api/profile/<id>/` | Get profile |
+
+---
+
+## 👨‍💻 Developer
+
+**Edupuganti Vamsi Krishna**
+- 🎓 B.Tech Computer Science, Parul University (2022–2026)
+- 📧 vamsikrishnaedupuganti167@gmail.com
+- 🔗 [LinkedIn](https://linkedin.com/in/vamsi-krishna-edupuganti-750966319)
+- 💻 [GitHub](https://github.com/Vamsi-57)
+
+---
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
